@@ -6,7 +6,7 @@ import aiosqlite
 import asyncio
 import tempfile
 
-mcp = FastMCP(name='Expense Tracker')
+mcp = FastMCP(name='ExpenseTracker')
 
 TEMP_DIR = tempfile.gettempdir()
 DB_PATH = os.path.join(TEMP_DIR,"expenses.db")
@@ -34,12 +34,12 @@ async def add_expenses(date,amount,category,sub_category='',note=''):
         async with aiosqlite.connect(DB_PATH) as c:
             curr = await c.execute("INSERT INTO expenses(date,amount,category,sub_category,note) VALUES(?,?,?,?,?)",
                             (date,amount,category,sub_category,note))
+            await c.commit()
         return {'status':'ok','id':curr.lastrowid,'message':"expense added succesfully"}
         
 
     except Exception as e:     # Changed: simplified exception handling
-        if "readonly" in str(e).lower():
-            return {"status": "error", "message": "Database is in read-only mode. Check file permissions."}
+       
         return {"status": "error", "message": f"Database error: {str(e)}"}
     
 
