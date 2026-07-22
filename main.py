@@ -6,7 +6,7 @@ import aiosqlite
 import asyncio
 import tempfile
 
-mcp = FastMCP(name='ExpenseTracker')
+mcp = FastMCP(name='Expense Tracker')
 
 TEMP_DIR = tempfile.gettempdir()
 DB_PATH = os.path.join(TEMP_DIR,"expenses.db")
