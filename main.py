@@ -52,16 +52,16 @@ async def list_expenses(start_date:str,end_date:str):
                                 ORDER BY id ASC""",
                                 (start_date,end_date)
                 )
-            
-            cols = [d[0] for d in curr.description]
-            return [dict(zip(cols,r)) for r in await curr.fetchall()]
+                rows = await curr.fetchall()
+                cols = [d[0] for d in curr.description]
+            return [dict(zip(cols,r)) for r in rows]
         except Exception as e:
             return {"status": "error", "message": f"Error listing expenses: {str(e)}"}
 
 @mcp.tool
 async def summary_expenses(start_date:str,end_date:str,category:str |None=None):
         try:
-            with await aiosqlite.connect(DB_PATH) as c:
+            async with await aiosqlite.connect(DB_PATH) as c:
                 query = ("""SELECT category,SUM(amount) AS total_amount FROM expenses
                         WHERE date BETWEEN ? AND ?""")
                 param =  [start_date,end_date]
@@ -69,10 +69,10 @@ async def summary_expenses(start_date:str,end_date:str,category:str |None=None):
                     query += " AND category = ?"
                     param.append(category)
                 query+= "GROUP BY category ORDER BY category ASC"
-
+                rows = await curr.fetchall()
                 curr = await c.execute(query,param)
                 cols = [d[0] for d in curr.description]
-                return [dict(zip(cols,r)) for r in await curr.fetchall()]   
+            return [dict(zip(cols,r)) for r in rows]   
         except Exception as e:
             return {"status": "error", "message": f"Error summarizing expenses: {str(e)}"}    
 
